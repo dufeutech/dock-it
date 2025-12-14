@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>lumino-easy (IIFE)</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+      }
+      #dock {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <lumino-dock id="dock"></lumino-dock>
+
+    <!-- IIFE Version - no module needed -->
+    <script src="./dist/lumino-easy.iife.js"></script>
+    <script>
+      // Access via window.LuminoEasy
+      const { LuminoDock, Widget, setTheme } = window.LuminoEasy;
+
+      const dock = document.getElementById("dock");
+
+      // Configure the dock
+      dock.config = {
+        widgets: {
+          EDITOR: (cfg) => new Widget({
+            ...cfg,
+            kind: "EDITOR",
+            render: (ctx) => `
+              <div style="padding: 20px; color: white;">
+                <h2>${ctx.label}</h2>
+                <p>ID: ${ctx.id}</p>
+                <p>Closable: ${ctx.closable}</p>
+              </div>
+            `
+          })
+        }
+      };
+
+      // Set theme
+      dock.theme = {
+        panelBg: "#2d2d2d",
+        tabBarBg: "#3c3c3c",
+        tabBg: "#4a4a4a",
+        tabBgActive: "#2d2d2d",
+        tabTextColor: "#ffffff",
+        handleBg: "#569cd6"
+      };
+
+      // Create and add widgets
+      const w1 = dock.api.widget("EDITOR", { label: "index.js", closable: true });
+      const w2 = dock.api.widget("EDITOR", { label: "style.css", closable: true });
+      dock.api.add(w1);
+      dock.api.add(w2, { mode: "split-right", ref: w1 });
+
+      window.addEventListener("resize", () => dock.update());
+      console.log("IIFE Dock initialized!", dock.api);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>lumino-easy - ESM Test</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        font-family: system-ui, sans-serif;
+      }
+      #dock {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <lumino-dock id="dock"></lumino-dock>
+
+    <!-- ESM Version - fully standalone, no external CSS needed -->
+    <script type="module">
+      import { LuminoDock, Widget } from "./dist/lumino-easy.es.js";
+
+      const dock = document.getElementById("dock");
+
+      // Configure the dock
+      dock.config = {
+        widgets: {
+          EDITOR: (cfg) =>
+            new Widget({
+              ...cfg,
+              kind: "EDITOR",
+              render: (ctx) => `
+              <div style="padding: 20px; color: #ccc;">
+                <h2 style="margin-top: 0;">${ctx.label}</h2>
+                <p>ID: <code>${ctx.id}</code></p>
+                <p>Closable: ${ctx.closable ? "Yes" : "No"}</p>
+                <button onclick="alert('Hello from ${
+                  ctx.label
+                }!')">Click me</button>
+              </div>
+            `,
+            }),
+        },
+        onTabAdded: (config) => {
+          console.log("[tab added]", config.tab.dataset.id);
+        },
+        onTabRemoved: (config) => {
+          console.log("[tab removed]", config.view.id);
+        },
+      };
+
+      // Create widgets
+      const widgetA = dock.api.widget("EDITOR", {
+        id: "editor-1",
+        label: "index.js",
+        closable: true,
+      });
+      const widgetB = dock.api.widget("EDITOR", {
+        id: "editor-2",
+        label: "style.css",
+        closable: true,
+      });
+      const widgetC = dock.api.widget("EDITOR", {
+        id: "editor-3",
+        label: "README.md",
+        closable: false,
+      });
+
+      // Add widgets
+      dock.api.add(widgetA);
+      dock.api.add(widgetB, { mode: "split-right", ref: widgetA });
+      dock.api.add(widgetC, { mode: "tab-after", ref: widgetB });
+
+      // Handle resize
+      window.addEventListener("resize", () => dock.update());
+
+      console.log("Dock initialized!", dock.api);
+      const layout = dock.api.saveJSON();
+      console.log("JSON!", layout);
+    </script>
+  </body>
+</html>
