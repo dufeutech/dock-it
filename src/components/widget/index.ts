@@ -60,7 +60,7 @@ const defaultRender: RenderFn = (ctx) => `
 `;
 
 /** Custom widget with kind property for serialization */
-export default class MyWidget extends Widget {
+class MyWidget extends Widget {
   readonly kind: string;
   private readonly _render: RenderFn;
 
@@ -68,7 +68,7 @@ export default class MyWidget extends Widget {
     id = idGenerator.generate(),
     label = "",
     icon = "",
-    closable = false,
+    closable = true,
     kind = "CODE_EDITOR",
     render = defaultRender,
   }: MyWidgetOptions = {}) {
@@ -83,7 +83,7 @@ export default class MyWidget extends Widget {
     this.title.className = `code-editor-widget-tab-class${
       closable ? " closable" : ""
     }`;
-    this.title.iconClass = ["editor-icon", icon].filter(Boolean).join(" ");
+    this.title.iconClass = icon || "lumino-editor-icon";
 
     this.addClass("my-widget");
     this.node.dataset.closable = String(closable);
@@ -91,7 +91,14 @@ export default class MyWidget extends Widget {
     const content = document.createElement("div");
     content.className = "code-editor-widget-content-class";
 
-    const ctx: RenderContext = { id, label, icon, closable, kind, node: content };
+    const ctx: RenderContext = {
+      id,
+      label,
+      icon,
+      closable,
+      kind,
+      node: content,
+    };
     const result = this._render(ctx);
 
     if (result instanceof HTMLElement) {
@@ -101,5 +108,19 @@ export default class MyWidget extends Widget {
     }
 
     this.node.appendChild(content);
+  }
+}
+
+export default class Main {
+  static create(options: MyWidgetOptions): Widget {
+    return new MyWidget(options);
+  }
+  static closer(config: any, render: any): void {
+    const el = document.createElement("div");
+    el.className = "lumino-close-editor-icon";
+    if (config.closable) {
+      el.addEventListener("click", render({ el }));
+    }
+    config.tab.appendChild(el);
   }
 }

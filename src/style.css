@@ -79,11 +79,11 @@ body {
 .editor-icon {
   margin-right: var(--editor-icon-left-margin);
 }
-.close-editor-icon {
+.lumino-close-editor-icon {
   margin-left: var(--editor-icon-right-margin);
   cursor: pointer;
   opacity: var(--editor-icon-right-opacity);
 }
-.close-editor-icon:hover {
+.lumino-close-editor-icon:hover {
   opacity: 1;
 }

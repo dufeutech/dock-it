@@ -25,17 +25,17 @@
 
     <!-- ESM Version - fully standalone, no external CSS needed -->
     <script type="module">
-      import { LuminoDock, Widget } from "./dist/lumino-easy.es.js";
+      import { Widget } from "./dist/lumino-easy.es.js";
 
       const dock = document.getElementById("dock");
 
       // Configure the dock
       dock.config = {
         widgets: {
-          EDITOR: (cfg) =>
-            new Widget({
+          code_editor: (cfg) =>
+            Widget.create({
               ...cfg,
-              kind: "EDITOR",
+              kind: "code_editor",
               render: (ctx) => `
               <div style="padding: 20px; color: #ccc;">
                 <h2 style="margin-top: 0;">${ctx.label}</h2>
@@ -49,6 +49,22 @@
             }),
         },
         onTabAdded: (config) => {
+          Widget.closer(config, ({ el }) => {
+            console.log(config.closable);
+            // `X` close `cirlce`
+            const isClose = true;
+            if (isClose) {
+              el.textContent = "X";
+              //el.style.marginTop = "-5px";
+            } else {
+              el.textContent = "●";
+              el.style.fontSize = "40px";
+              el.style.marginTop = "-5px";
+            }
+
+            // Click Event
+            return () => console.log("CLOSE");
+          });
           console.log("[tab added]", config.tab.dataset.id);
         },
         onTabRemoved: (config) => {
@@ -57,18 +73,16 @@
       };
 
       // Create widgets
-      const widgetA = dock.api.widget("EDITOR", {
-        id: "editor-1",
+      const widgetA = dock.api.widget("code_editor", {
+        id: "code-editor-1",
         label: "index.js",
-        closable: true,
       });
-      const widgetB = dock.api.widget("EDITOR", {
-        id: "editor-2",
+      const widgetB = dock.api.widget("code_editor", {
+        id: "code-editor-2",
         label: "style.css",
-        closable: true,
       });
-      const widgetC = dock.api.widget("EDITOR", {
-        id: "editor-3",
+      const widgetC = dock.api.widget("code_editor", {
+        id: "code-editor-3",
         label: "README.md",
         closable: false,
       });
@@ -82,8 +96,21 @@
       window.addEventListener("resize", () => dock.update());
 
       console.log("Dock initialized!", dock.api);
+
+      // Save
       const layout = dock.api.saveJSON();
-      console.log("JSON!", layout);
+      localStorage.setItem("dock-layout", layout);
+
+      /*
+      // Delete
+      setTimeout(() => dock.api.dispose(), 500);
+
+      // Load
+      setTimeout(() => {
+        const saved = localStorage.getItem("dock-layout");
+        dock.api.loadJSON(saved);
+      }, 2000);
+      */
     </script>
   </body>
 </html>

@@ -13,26 +13,40 @@ export class LuminoDock extends HTMLElement {
   private _config: DockerConfig | null = null;
   private _theme: DockTheme = {};
 
+  /** Ensure docker is attached, re-attaching if disposed */
+  private _ensureAttached(): Docker {
+    if (!this._config) {
+      throw new Error("Docker not initialized. Set config first.");
+    }
+    if (!this._docker || this._docker.isDisposed) {
+      this._docker = new Docker(this._config);
+      this._docker.attach(this);
+    }
+    return this._docker;
+  }
+
   /** Access the Docker API with theme control */
   get api(): LuminoDockAPI {
-    if (!this._docker) {
+    if (!this._config) {
       throw new Error("Docker not initialized. Set config first.");
     }
 
-    const docker = this._docker;
     const self = this;
 
-    // Return Docker with added setTheme method
-    return new Proxy(docker, {
-      get(target, prop) {
+    // Return Docker proxy with auto-attach and setTheme
+    return new Proxy({} as Docker, {
+      get(_, prop) {
         if (prop === "setTheme") {
           return (theme: DockTheme) => {
             self._theme = { ...self._theme, ...theme };
             setTheme(self._theme);
           };
         }
-        const value = Reflect.get(target, prop, target);
-        return typeof value === "function" ? value.bind(target) : value;
+
+        // Auto-attach for methods that need it
+        const docker = self._ensureAttached();
+        const value = Reflect.get(docker, prop, docker);
+        return typeof value === "function" ? value.bind(docker) : value;
       },
     }) as LuminoDockAPI;
   }
