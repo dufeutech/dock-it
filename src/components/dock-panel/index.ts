@@ -1,4 +1,4 @@
-import { DockPanel, Widget } from "@lumino/widgets";
+import { DockPanel, TabBar, Widget } from "@lumino/widgets";
 
 /** Tab node configuration */
 export interface TabNodeConfig {
@@ -39,6 +39,7 @@ function enableHorizontalScroll(tabBar: HTMLElement): void {
 export interface TabCallbacks {
   readonly onTabAdded?: (config: TabNodeConfig) => void;
   readonly onTabRemoved?: (config: TabNodeConfig) => void;
+  readonly onTabActivated?: (config: TabNodeConfig | null) => void;
 }
 
 /** Extended DockPanel options */
@@ -51,11 +52,60 @@ export default class MyDockPanel extends DockPanel {
   private tabNodes = new Map<string, TabNodeConfig>();
   private tabCallbacks: TabCallbacks;
   private observer: MutationObserver | null = null;
+  private _currentWidget: Widget | null = null;
 
   constructor(options?: MyDockPanelOptions) {
     super(options);
     this.tabCallbacks = options?.tabCallbacks ?? {};
     this.setupObserver();
+  }
+
+  /** Override addWidget to track tab bars for currentChanged signal */
+  addWidget(widget: Widget, options?: DockPanel.IAddOptions): void {
+    super.addWidget(widget, options);
+    // After adding, connect to all tab bars
+    this.connectTabBars();
+  }
+
+  /** Connect to all tab bars' currentChanged signals */
+  private connectTabBars(): void {
+    for (const tabBar of this.tabBars()) {
+      // Avoid duplicate connections by checking if already connected
+      if (!(tabBar as TabBar<Widget> & { __connected?: boolean }).__connected) {
+        (tabBar as TabBar<Widget> & { __connected?: boolean }).__connected = true;
+        tabBar.currentChanged.connect(this.handleTabBarCurrentChanged, this);
+      }
+    }
+  }
+
+  /** Handle currentChanged from any tab bar */
+  private handleTabBarCurrentChanged(
+    _sender: TabBar<Widget>,
+    args: TabBar.ICurrentChangedArgs<Widget>
+  ): void {
+    const currentWidget = args.currentTitle?.owner ?? null;
+
+    if (this._currentWidget === currentWidget) return;
+
+    this._currentWidget = currentWidget;
+
+    // Call the callback
+    if (currentWidget) {
+      const config = this.findConfigForWidget(currentWidget);
+      this.tabCallbacks.onTabActivated?.(config);
+    } else {
+      this.tabCallbacks.onTabActivated?.(null);
+    }
+  }
+
+  /** Find TabNodeConfig for a given widget */
+  private findConfigForWidget(widget: Widget): TabNodeConfig | null {
+    for (const config of this.tabNodes.values()) {
+      if (config.widget === widget) {
+        return config;
+      }
+    }
+    return null;
   }
 
   /** Get all tracked tab nodes */

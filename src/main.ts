@@ -39,6 +39,9 @@ const dock = Docker.create({
     }
     console.log("[EDITOR]", EDITOR);
   },
+  onTabActivated: (config: any) => {
+    console.log("[activated]", config?.widget?.id ?? "none");
+  },
 
   // Theme
   theme: {

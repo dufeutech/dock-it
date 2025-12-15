@@ -58,6 +58,7 @@ export interface DockerConfig {
   readonly addButtonEnabled?: boolean;
   readonly onTabAdded?: (config: TabNodeConfig) => void;
   readonly onTabRemoved?: (config: TabNodeConfig) => void;
+  readonly onTabActivated?: (config: TabNodeConfig | null) => void;
   /** Theme configuration */
   readonly theme?: DockTheme;
   /** Icon styles for close/dirty indicators */
@@ -155,6 +156,7 @@ export class Docker {
           this.config.onTabAdded?.(config);
         },
         onTabRemoved: this.config.onTabRemoved,
+        onTabActivated: this.config.onTabActivated,
       },
     });
     dock.id = "docker-main";

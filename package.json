@@ -1,6 +1,6 @@
 {
   "name": "@dufeut/dock-it",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A powerful, resizable docking system web component with draggable tabs, splittable panels, and layout serialization",
   "type": "module",
   "module": "./dist/dock-it.es.js",
