@@ -1,5 +1,5 @@
 {
-  "name": "@dufeut/dock-it",
+  "name": "@dufeutech/dock-it",
   "version": "0.1.1",
   "description": "A powerful, resizable docking system web component with draggable tabs, splittable panels, and layout serialization",
   "type": "module",
@@ -40,16 +40,16 @@
     "resizable",
     "panels"
   ],
-  "author": "dufeut",
+  "author": "dufeutech",
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dufeut/dock-it.git"
+    "url": "git+https://github.com/dufeutech/dock-it.git"
   },
   "bugs": {
-    "url": "https://github.com/dufeut/dock-it/issues"
+    "url": "https://github.com/dufeutech/dock-it/issues"
   },
-  "homepage": "https://github.com/dufeut/dock-it#readme",
+  "homepage": "https://github.com/dufeutech/dock-it#readme",
   "dependencies": {
     "@lumino/widgets": "^2.7.2"
   },
